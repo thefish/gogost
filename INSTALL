@@ -75,8 +75,8 @@ or
 $ go mod vendor
 ```
 
-If you are experiencing problems with sum.golang.org 410 reponse - place 
-GoGOST project repository to list of private repos, go mod will ignore 
+If you are experiencing problems with sum.golang.org 410 reponse - place
+GoGOST project repository to list of private repos, go mod will ignore
 sum check:
 ```
 $ GOPRIVATE=go.cypherpunks.ru/gogost go mod vendor
