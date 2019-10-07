@@ -23,8 +23,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/thefish/gogost"
-	"github.com/thefish/gogost/gost34112012512"
+	"go.cypherpunks.ru/gogost/v4"
+	"go.cypherpunks.ru/gogost/v4/gost34112012512"
 )
 
 var (
