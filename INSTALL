@@ -54,3 +54,30 @@ resources.
     Look in PUBKEY.asc file.
     $ gpg --auto-key-locate dane --locate-keys gogost at cypherpunks dot ru
     $ gpg --auto-key-locate wkd --locate-keys gogost at cypherpunks dot ru
+
+Using GoGOST with Go Module system (alpha!)
+
+Include GoGOST dependency to your go.mod file:
+
+```
+module <your/module/name>
+
+require go.cypherpunks.ru.gogost/v4 v4.1.0
+
+```
+
+Then download or vendor dependencies of your project:
+```
+$ go mod download
+```
+or
+```
+$ go mod vendor
+```
+
+If you are experiencing problems with sum.golang.org 410 reponse - place 
+GoGOST project repository to list of private repos, go mod will ignore 
+sum check:
+```
+$ GOPRIVATE=go.cypherpunks.ru/gogost go mod vendor
+```
