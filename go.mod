@@ -1,4 +1,4 @@
-module go.cypherpunks.ru/gogost/v4
+module github.com/thefish/gogost/v4
 
 go 1.12
 
