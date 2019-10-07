@@ -29,7 +29,7 @@ import (
     "encoding/hex"
     "fmt"
 
-    "go.cypherpunks.ru/gogost/v4/gost34112012256"
+    "github.com/thefish/gogost/v4/gost34112012256"
 )
 
 func main() {
@@ -45,7 +45,7 @@ f72018189a5cfb803dbe1f2149cf554c40093d8e7f81c21e08ac5bcd09d9934d
 GoGOST is also @command{go get}-able. For example to use
 @command{streebog256} utility:
 @verbatim
-$ go get go.cypherpunks.ru/gogost/cmd/streebog256
+$ go get github.com/thefish/gogost/cmd/streebog256
 @end verbatim
 
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {link sign} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
