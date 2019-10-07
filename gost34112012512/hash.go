@@ -20,7 +20,7 @@ package gost34112012512
 import (
 	"hash"
 
-	"go.cypherpunks.ru/gogost/v4/internal/gost34112012"
+	"github.com/thefish/gogost/v4/internal/gost34112012"
 )
 
 const (

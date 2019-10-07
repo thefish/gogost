@@ -23,7 +23,7 @@ like this:
         "encoding/hex"
         "fmt"
 
-        "go.cypherpunks.ru/gogost/v4/gost34112012256"
+        "github.com/thefish/gogost/v4/gost34112012256"
     )
 
     func main() {
@@ -37,7 +37,7 @@ like this:
 
 GoGOST is also go-get-able. For example to use streebog256 utility:
 
-    $ go get go.cypherpunks.ru/gogost/cmd/streebog256
+    $ go get github.com/thefish/gogost/cmd/streebog256
 
 You have to verify downloaded tarballs integrity and authenticity to be
 sure that you retrieved trusted and untampered software. GNU Privacy
