@@ -5,8 +5,8 @@
     * Forbid any later GNU GPL version autousage
       (project's licence now is GNU GPLv3 only)
     * Project now is go get-able and uses go.cypherpunks.ru namespace:
-      go get go.cypherpunks.ru/gogost
-      go get go.cypherpunks.ru/gogost/cmd/streebog{256,512}
+      go get github.com/thefish/gogost
+      go get github.com/thefish/gogost/cmd/streebog{256,512}
 
 4.0:
     * Backward incompatible change: all keys passing to encryption
