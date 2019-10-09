@@ -35,10 +35,6 @@ like this:
     $ go run main.go
     f72018189a5cfb803dbe1f2149cf554c40093d8e7f81c21e08ac5bcd09d9934d
 
-GoGOST is also go-get-able. For example to use streebog256 utility:
-
-    $ go get go.cypherpunks.ru/gogost/cmd/streebog256
-
 You have to verify downloaded tarballs integrity and authenticity to be
 sure that you retrieved trusted and untampered software. GNU Privacy
 Guard is used for that purpose.
