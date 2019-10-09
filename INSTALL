@@ -55,29 +55,18 @@ resources.
     $ gpg --auto-key-locate dane --locate-keys gogost at cypherpunks dot ru
     $ gpg --auto-key-locate wkd --locate-keys gogost at cypherpunks dot ru
 
-Using GoGOST with Go Module system (alpha!)
+GoGOST is also go-get-able. For example to use streebog256 utility:
 
-Include GoGOST dependency to your go.mod file:
+    $ go get go.cypherpunks.ru/gogost/cmd/streebog256
 
-```
-module <your/module/name>
+go.cypherpunks.ru uses CACert.org certificate authority, that is not
+included by default in some operating system distributions and probably
+you have to install it in your system, because "go get" uses HTTPS
+connections. If you have issues using either sum.golang.org or
+proxy.golang.org, then you can disable their usage with
+GOPRIVATE=go.cypherpunks.ru/gogost environment variable.
 
-require go.cypherpunks.ru/gogost/v4 v4.1.0
+Also you can use "replace" feature inside your go.mod, like:
 
-```
-
-Then download or vendor dependencies of your project:
-```
-$ go mod download
-```
-or
-```
-$ go mod vendor
-```
-
-If you are experiencing problems with sum.golang.org 410 reponse - place
-GoGOST project repository to list of private repos, go mod will ignore
-sum check:
-```
-$ GOPRIVATE=go.cypherpunks.ru/gogost go mod vendor
-```
+    require go.cypherpunks.ru/gogost/v4 v4.1.0
+    replace go.cypherpunks.ru/gogost/v4 => /home/stargrave/gogost-4.1.0/src/go.cypherpunks.ru/gogost/v4
