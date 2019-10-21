@@ -13,27 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package gost3410
+package prfplus
 
-import (
-	"errors"
-	"math/big"
+type PRFForPlus interface {
+	BlockSize() int
+	Derive(salt []byte) []byte
+}
 
-	"github.com/thefish/gogost/v4/gost28147"
-	"github.com/thefish/gogost/v4/gost341194"
-)
-
-// RFC 4357 VKO GOST R 34.10-2001 key agreement function.
-// UKM is user keying material, also called VKO-factor.
-func (prv *PrivateKey) KEK2001(pub *PublicKey, ukm *big.Int) ([]byte, error) {
-	if prv.Mode != Mode2001 {
-		return nil, errors.New("gogost/gost3410: KEK2001 can not be used in Mode2012")
+// prf+ function as defined in RFC 7296 (IKEv2)
+func PRFPlus(prf PRFForPlus, dst, salt []byte) {
+	in := make([]byte, prf.BlockSize()+len(salt)+1)
+	in[len(in)-1] = byte(0x01)
+	copy(in[prf.BlockSize():], salt)
+	copy(in[:prf.BlockSize()], prf.Derive(in[prf.BlockSize():]))
+	copy(dst, in[:prf.BlockSize()])
+	n := len(dst) / prf.BlockSize()
+	if n == 0 {
+		return
 	}
-	key, err := prv.KEK(pub, ukm)
-	if err != nil {
-		return nil, err
+	if n*prf.BlockSize() != len(dst) {
+		n++
 	}
-	h := gost341194.New(&gost28147.SboxIdGostR341194CryptoProParamSet)
-	h.Write(key)
-	return h.Sum(key[:0]), nil
+	n--
+	out := dst[prf.BlockSize():]
+	for i := 0; i < n; i++ {
+		in[len(in)-1] = byte(i + 2)
+		copy(in[:prf.BlockSize()], prf.Derive(in))
+		copy(out, in[:prf.BlockSize()])
+		if i+1 != n {
+			out = out[prf.BlockSize():]
+		}
+	}
 }
