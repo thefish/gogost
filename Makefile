@@ -1,7 +1,7 @@
 GOPATH != pwd
 VERSION != cat VERSION
 
-MOD = go.cypherpunks.ru/gogost/v4
+MOD = github.com/thefish/gogost/v4
 LDFLAGS = -X $(MOD).Version=$(VERSION)
 
 all: streebog256 streebog512
