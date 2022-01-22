@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ var (
 		190, 229, 108, 82, 89, 166, 116, 210, 230, 244, 180,
 		192, 209, 102, 175, 194, 57, 75, 99, 182,
 	}
-	piInv [256]byte
-	cBlk  [32]*[BlockSize]byte
+	piInv   [256]byte
+	cBlk    [32]*[BlockSize]byte
+	gfCache [256][256]byte
 )
 
 func gf(a, b byte) (c byte) {
@@ -70,61 +71,124 @@ func gf(a, b byte) (c byte) {
 	return
 }
 
-func l(blk *[BlockSize]byte, rounds int) {
-	var t byte
-	var i int
-	for ; rounds > 0; rounds-- {
-		t = blk[15]
-		for i = 14; i >= 0; i-- {
-			blk[i+1] = blk[i]
-			t ^= gf(blk[i], lc[i])
-		}
-		blk[0] = t
+func l(blk *[BlockSize]byte) {
+	for n := 0; n < BlockSize; n++ {
+		blk[0],
+			blk[1],
+			blk[2],
+			blk[3],
+			blk[4],
+			blk[5],
+			blk[6],
+			blk[7],
+			blk[8],
+			blk[9],
+			blk[10],
+			blk[11],
+			blk[12],
+			blk[13],
+			blk[14],
+			blk[15] = (blk[15] ^
+			gfCache[blk[0]][lc[0]] ^
+			gfCache[blk[1]][lc[1]] ^
+			gfCache[blk[2]][lc[2]] ^
+			gfCache[blk[3]][lc[3]] ^
+			gfCache[blk[4]][lc[4]] ^
+			gfCache[blk[5]][lc[5]] ^
+			gfCache[blk[6]][lc[6]] ^
+			gfCache[blk[7]][lc[7]] ^
+			gfCache[blk[8]][lc[8]] ^
+			gfCache[blk[9]][lc[9]] ^
+			gfCache[blk[10]][lc[10]] ^
+			gfCache[blk[11]][lc[11]] ^
+			gfCache[blk[12]][lc[12]] ^
+			gfCache[blk[13]][lc[13]] ^
+			gfCache[blk[14]][lc[14]]),
+			blk[0],
+			blk[1],
+			blk[2],
+			blk[3],
+			blk[4],
+			blk[5],
+			blk[6],
+			blk[7],
+			blk[8],
+			blk[9],
+			blk[10],
+			blk[11],
+			blk[12],
+			blk[13],
+			blk[14]
 	}
 }
 
 func lInv(blk *[BlockSize]byte) {
 	var t byte
-	var i int
 	for n := 0; n < BlockSize; n++ {
 		t = blk[0]
-		for i = 0; i < 15; i++ {
-			blk[i] = blk[i+1]
-			t ^= gf(blk[i], lc[i])
-		}
+		copy(blk[:], blk[1:])
+		t ^= gfCache[blk[0]][lc[0]]
+		t ^= gfCache[blk[1]][lc[1]]
+		t ^= gfCache[blk[2]][lc[2]]
+		t ^= gfCache[blk[3]][lc[3]]
+		t ^= gfCache[blk[4]][lc[4]]
+		t ^= gfCache[blk[5]][lc[5]]
+		t ^= gfCache[blk[6]][lc[6]]
+		t ^= gfCache[blk[7]][lc[7]]
+		t ^= gfCache[blk[8]][lc[8]]
+		t ^= gfCache[blk[9]][lc[9]]
+		t ^= gfCache[blk[10]][lc[10]]
+		t ^= gfCache[blk[11]][lc[11]]
+		t ^= gfCache[blk[12]][lc[12]]
+		t ^= gfCache[blk[13]][lc[13]]
+		t ^= gfCache[blk[14]][lc[14]]
 		blk[15] = t
 	}
 }
 
-func init() {
-	piInvP := new([256]byte)
-	for i := 0; i < 256; i++ {
-		piInvP[int(pi[i])] = byte(i)
-	}
-	piInv = *piInvP
-	CP := new([32]*[BlockSize]byte)
-	for i := 0; i < 32; i++ {
-		CP[i] = new([BlockSize]byte)
-		CP[i][15] = byte(i) + 1
-		l(CP[i], 16)
-	}
-	cBlk = *CP
-}
-
 func s(blk *[BlockSize]byte) {
-	for i := 0; i < BlockSize; i++ {
-		blk[i] = pi[int(blk[i])]
+	blk[0] = pi[int(blk[0])]
+	blk[1] = pi[int(blk[1])]
+	blk[2] = pi[int(blk[2])]
+	blk[3] = pi[int(blk[3])]
+	blk[4] = pi[int(blk[4])]
+	blk[5] = pi[int(blk[5])]
+	blk[6] = pi[int(blk[6])]
+	blk[7] = pi[int(blk[7])]
+	blk[8] = pi[int(blk[8])]
+	blk[9] = pi[int(blk[9])]
+	blk[10] = pi[int(blk[10])]
+	blk[11] = pi[int(blk[11])]
+	blk[12] = pi[int(blk[12])]
+	blk[13] = pi[int(blk[13])]
+	blk[14] = pi[int(blk[14])]
+	blk[15] = pi[int(blk[15])]
+}
+
+func sInv(blk *[BlockSize]byte) {
+	for n := 0; n < BlockSize; n++ {
+		blk[n] = piInv[int(blk[n])]
 	}
 }
 
-func xor(dst, src1, src2 *[BlockSize]byte) {
-	for i := 0; i < BlockSize; i++ {
-		dst[i] = src1[i] ^ src2[i]
+func init() {
+	for a := 0; a < 256; a++ {
+		for b := 0; b < 256; b++ {
+			gfCache[a][b] = gf(byte(a), byte(b))
+		}
+	}
+	for i := 0; i < 256; i++ {
+		piInv[int(pi[i])] = byte(i)
+	}
+	for i := 0; i < 32; i++ {
+		cBlk[i] = new([BlockSize]byte)
+		cBlk[i][15] = byte(i) + 1
+		l(cBlk[i])
 	}
 }
 
 type Cipher struct {
-	ks [10]*[BlockSize]byte
+	ks [10][BlockSize]byte
 }
 
 func (c *Cipher) BlockSize() int {
@@ -135,56 +199,48 @@ func NewCipher(key []byte) *Cipher {
 	if len(key) != KeySize {
 		panic("invalid key size")
 	}
-	ks := new([10]*[BlockSize]byte)
-	kr0 := new([BlockSize]byte)
-	kr1 := new([BlockSize]byte)
-	krt := new([BlockSize]byte)
+	var ks [10][BlockSize]byte
+	var kr0 [BlockSize]byte
+	var kr1 [BlockSize]byte
+	var krt [BlockSize]byte
 	copy(kr0[:], key[:BlockSize])
 	copy(kr1[:], key[BlockSize:])
-	ks[0] = new([BlockSize]byte)
-	ks[1] = new([BlockSize]byte)
 	copy(ks[0][:], kr0[:])
 	copy(ks[1][:], kr1[:])
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 8; j++ {
-			xor(krt, kr0, cBlk[8*i+j])
-			s(krt)
-			l(krt, 16)
-			xor(krt, krt, kr1)
+			xor(krt[:], kr0[:], cBlk[8*i+j][:])
+			s(&krt)
+			l(&krt)
+			xor(krt[:], krt[:], kr1[:])
 			copy(kr1[:], kr0[:])
 			copy(kr0[:], krt[:])
 		}
-		ks[2+2*i] = new([BlockSize]byte)
 		copy(ks[2+2*i][:], kr0[:])
-		ks[2+2*i+1] = new([BlockSize]byte)
 		copy(ks[2+2*i+1][:], kr1[:])
 	}
-	return &Cipher{*ks}
+	return &Cipher{ks}
 }
 
 func (c *Cipher) Encrypt(dst, src []byte) {
 	blk := new([BlockSize]byte)
 	copy(blk[:], src)
 	for i := 0; i < 9; i++ {
-		xor(blk, blk, c.ks[i])
+		xor(blk[:], blk[:], c.ks[i][:])
 		s(blk)
-		l(blk, 16)
+		l(blk)
 	}
-	xor(blk, blk, c.ks[9])
-	copy(dst[:BlockSize], blk[:])
+	xor(blk[:], blk[:], c.ks[9][:])
+	copy(dst, blk[:])
 }
 
 func (c *Cipher) Decrypt(dst, src []byte) {
 	blk := new([BlockSize]byte)
 	copy(blk[:], src)
-	var n int
 	for i := 9; i > 0; i-- {
-		xor(blk, blk, c.ks[i])
+		xor(blk[:], blk[:], c.ks[i][:])
 		lInv(blk)
-		for n = 0; n < BlockSize; n++ {
-			blk[n] = piInv[int(blk[n])]
-		}
+		sInv(blk)
 	}
-	xor(blk, blk, c.ks[0])
-	copy(dst[:BlockSize], blk[:])
+	xor(dst, blk[:], c.ks[0][:])
 }

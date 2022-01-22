@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,16 +24,16 @@ import (
 )
 
 type PrivateKey struct {
-	C    *Curve
-	Mode Mode
-	Key  *big.Int
+	C   *Curve
+	Key *big.Int
 }
 
-func NewPrivateKey(curve *Curve, mode Mode, raw []byte) (*PrivateKey, error) {
-	if len(raw) != int(mode) {
-		return nil, fmt.Errorf("gogost/gost3410: len(key) != %d", mode)
+func NewPrivateKey(c *Curve, raw []byte) (*PrivateKey, error) {
+	pointSize := c.PointSize()
+	if len(raw) != pointSize {
+		return nil, fmt.Errorf("gogost/gost3410: len(key) != %d", pointSize)
 	}
-	key := make([]byte, int(mode))
+	key := make([]byte, pointSize)
 	for i := 0; i < len(key); i++ {
 		key[i] = raw[len(raw)-i-1]
 	}
@@ -41,19 +41,19 @@ func NewPrivateKey(curve *Curve, mode Mode, raw []byte) (*PrivateKey, error) {
 	if k.Cmp(zero) == 0 {
 		return nil, errors.New("gogost/gost3410: zero private key")
 	}
-	return &PrivateKey{curve, mode, k}, nil
+	return &PrivateKey{c, k.Mod(k, c.Q)}, nil
 }
 
-func GenPrivateKey(curve *Curve, mode Mode, rand io.Reader) (*PrivateKey, error) {
-	raw := make([]byte, int(mode))
+func GenPrivateKey(c *Curve, rand io.Reader) (*PrivateKey, error) {
+	raw := make([]byte, c.PointSize())
 	if _, err := io.ReadFull(rand, raw); err != nil {
 		return nil, err
 	}
-	return NewPrivateKey(curve, mode, raw)
+	return NewPrivateKey(c, raw)
 }
 
 func (prv *PrivateKey) Raw() []byte {
-	raw := pad(prv.Key.Bytes(), int(prv.Mode))
+	raw := pad(prv.Key.Bytes(), prv.C.PointSize())
 	reverse(raw)
 	return raw
 }
@@ -63,7 +63,7 @@ func (prv *PrivateKey) PublicKey() (*PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &PublicKey{prv.C, prv.Mode, x, y}, nil
+	return &PublicKey{prv.C, x, y}, nil
 }
 
 func (prv *PrivateKey) SignDigest(digest []byte, rand io.Reader) ([]byte, error) {
@@ -72,7 +72,7 @@ func (prv *PrivateKey) SignDigest(digest []byte, rand io.Reader) ([]byte, error)
 	if e.Cmp(zero) == 0 {
 		e = big.NewInt(1)
 	}
-	kRaw := make([]byte, int(prv.Mode))
+	kRaw := make([]byte, prv.C.PointSize())
 	var err error
 	var k *big.Int
 	var r *big.Int
@@ -102,9 +102,10 @@ Retry:
 	if s.Cmp(zero) == 0 {
 		goto Retry
 	}
+	pointSize := prv.C.PointSize()
 	return append(
-		pad(s.Bytes(), int(prv.Mode)),
-		pad(r.Bytes(), int(prv.Mode))...,
+		pad(s.Bytes(), pointSize),
+		pad(r.Bytes(), pointSize)...,
 	), nil
 }
 
@@ -118,4 +119,39 @@ func (prv *PrivateKey) Public() crypto.PublicKey {
 		panic(err)
 	}
 	return pub
+}
+
+type PrivateKeyReverseDigest struct {
+	Prv *PrivateKey
+}
+
+func (prv *PrivateKeyReverseDigest) Public() crypto.PublicKey {
+	return prv.Prv.Public()
+}
+
+func (prv *PrivateKeyReverseDigest) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	d := make([]byte, len(digest))
+	copy(d, digest)
+	reverse(d)
+	return prv.Prv.Sign(rand, d, opts)
+}
+
+type PrivateKeyReverseDigestAndSignature struct {
+	Prv *PrivateKey
+}
+
+func (prv *PrivateKeyReverseDigestAndSignature) Public() crypto.PublicKey {
+	return prv.Prv.Public()
+}
+
+func (prv *PrivateKeyReverseDigestAndSignature) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	d := make([]byte, len(digest))
+	copy(d, digest)
+	reverse(d)
+	sign, err := prv.Prv.Sign(rand, d, opts)
+	if err != nil {
+		return sign, err
+	}
+	reverse(sign)
+	return sign, err
 }

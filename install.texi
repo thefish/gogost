@@ -1,20 +1,25 @@
 @node Download
 @unnumbered Download
 
-@set VERSION 4.2.3
-
 Preferable way is to download tarball with the signature from
 website and, for example, run tests with benchmarks:
 
 @example
-$ [fetch|wget] http://gogost.cypherpunks.ru/gogost-@value{VERSION}.tar.xz
-$ [fetch|wget] http://gogost.cypherpunks.ru/gogost-@value{VERSION}.tar.xz.sig
-$ gpg --verify gogost-@value{VERSION}.tar.xz.sig gogost-@value{VERSION}.tar.xz
-$ xz --decompress --stdout gogost-@value{VERSION}.tar.xz | tar xf -
-$ make -C gogost-@value{VERSION} all bench
-$ echo hello world | gogost-@value{VERSION}/streebog256
+$ [fetch|wget] http://www.gogost.cypherpunks.ru/gogost-@value{VERSION}.tar.zst
+$ [fetch|wget] http://www.gogost.cypherpunks.ru/gogost-@value{VERSION}.tar.zst.sig
+$ gpg --verify gogost-@value{VERSION}.tar.zst.sig gogost-@value{VERSION}.tar.zst
+$ zstd --decompress --stdout gogost-@value{VERSION}.tar.zst | tar xf -
+$ cd gogost-@value{VERSION}
+$ redo all
+$ echo hello world | ./streebog256
 f72018189a5cfb803dbe1f2149cf554c40093d8e7f81c21e08ac5bcd09d9934d
 @end example
+
+It uses @url{http://cr.yp.to/redo.html, redo} build system for that
+examples. You can use either dozen of various implementations, or at
+least minimalistic POSIX shell @command{contrib/do} (just replace
+@command{redo} with @command{contrib/do} in the example above) included
+in tarball.
 
 @include download.texi
 
@@ -22,10 +27,9 @@ And then you can include its source code in your project for example
 like this:
 
 @example
-$ mkdir -p myproj/src
-$ cp -r gogost-@value{VERSION}/src/go.cypherpunks.ru myproj/src
-$ export GOPATH=$PWD/myproj
-$ cd myproj/src
+$ mkdir -p myproj/vendor/go.cypherpunks.ru/gogost
+$ mv gogost-@value{VERSION} myproj/vendor/go.cypherpunks.ru/gogost/v5
+$ cd myproj
 $ cat > main.go <<EOF
 package main
 
@@ -33,7 +37,7 @@ import (
     "encoding/hex"
     "fmt"
 
-    "go.cypherpunks.ru/gogost/v4/gost34112012256"
+    "go.cypherpunks.ru/gogost/v5/gost34112012256"
 )
 
 func main() @{
@@ -63,7 +67,7 @@ uid   GoGOST releases <gogost at cypherpunks dot ru>
 
 @itemize
 
-@item @url{https://lists.cypherpunks.ru/mailman/listinfo/gost, gost} maillist
+@item @url{http://lists.cypherpunks.ru/gost.html, gost} maillist
 
 @item
 @example
@@ -83,20 +87,19 @@ GoGOST is also @command{go get}-able. For example to use
 $ go get go.cypherpunks.ru/gogost/cmd/streebog256
 @end example
 
-@code{go.cypherpunks.ru} uses @url{https://www.cacert.org/, CACert.org}
-certificate authority, that is not included by default in some operating
-system distributions and probably you have to install it in your system,
-because @command{go get} uses HTTPS connections. If you have issues
-using either @code{sum.golang.org} or @code{proxy.golang.org}, then you
-can disable their usage with @env{GOPRIVATE=go.cypherpunks.ru/gogost}
-environment variable.
+If you have problems with @code{*.golang.org}'s inability to verify
+authenticity of @code{go.cypherpunks.ru} TLS connection, then you can
+disable their usage by setting @env{GOPRIVATE=go.cypherpunks.ru}. You
+can override CA certificate file path with @env{SSL_CERT_FILE} and
+@env{GIT_SSL_CAINFO} environment variables.
 
 Also you can use @code{replace} feature inside your @file{go.mod}, like:
 
 @example
-require go.cypherpunks.ru/gogost/v4 v@value{VERSION}
-replace go.cypherpunks.ru/gogost/v4 => /home/stargrave/gogost-@value{VERSION}/src/go.cypherpunks.ru/gogost/v4
+require go.cypherpunks.ru/gogost/v5 v@value{VERSION}
+replace go.cypherpunks.ru/gogost/v5 => /path/to/gogost-@value{VERSION}
 @end example
 
 You can obtain development source code with
-@command{git clone git://git.cypherpunks.ru/gogost.git}.
+@command{git clone git://git.cypherpunks.ru/gogost.git}
+(also you can use @url{https://git.cypherpunks.ru/gogost.git}).

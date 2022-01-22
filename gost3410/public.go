@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,19 +16,20 @@
 package gost3410
 
 import (
+	"crypto"
 	"fmt"
 	"math/big"
 )
 
 type PublicKey struct {
-	C    *Curve
-	Mode Mode
-	X    *big.Int
-	Y    *big.Int
+	C *Curve
+	X *big.Int
+	Y *big.Int
 }
 
-func NewPublicKey(curve *Curve, mode Mode, raw []byte) (*PublicKey, error) {
-	key := make([]byte, 2*int(mode))
+func NewPublicKey(c *Curve, raw []byte) (*PublicKey, error) {
+	pointSize := c.PointSize()
+	key := make([]byte, 2*pointSize)
 	if len(raw) != len(key) {
 		return nil, fmt.Errorf("gogost/gost3410: len(key) != %d", len(key))
 	}
@@ -36,28 +37,29 @@ func NewPublicKey(curve *Curve, mode Mode, raw []byte) (*PublicKey, error) {
 		key[i] = raw[len(raw)-i-1]
 	}
 	return &PublicKey{
-		curve,
-		mode,
-		bytes2big(key[int(mode) : 2*int(mode)]),
-		bytes2big(key[:int(mode)]),
+		c,
+		bytes2big(key[pointSize : 2*pointSize]),
+		bytes2big(key[:pointSize]),
 	}, nil
 }
 
 func (pub *PublicKey) Raw() []byte {
+	pointSize := pub.C.PointSize()
 	raw := append(
-		pad(pub.Y.Bytes(), int(pub.Mode)),
-		pad(pub.X.Bytes(), int(pub.Mode))...,
+		pad(pub.Y.Bytes(), pointSize),
+		pad(pub.X.Bytes(), pointSize)...,
 	)
 	reverse(raw)
 	return raw
 }
 
 func (pub *PublicKey) VerifyDigest(digest, signature []byte) (bool, error) {
-	if len(signature) != 2*int(pub.Mode) {
-		return false, fmt.Errorf("gogost/gost3410: len(signature) != %d", 2*int(pub.Mode))
+	pointSize := pub.C.PointSize()
+	if len(signature) != 2*pointSize {
+		return false, fmt.Errorf("gogost/gost3410: len(signature) != %d", 2*pointSize)
 	}
-	s := bytes2big(signature[:pub.Mode])
-	r := bytes2big(signature[pub.Mode:])
+	s := bytes2big(signature[:pointSize])
+	r := bytes2big(signature[pointSize:])
 	if r.Cmp(zero) <= 0 ||
 		r.Cmp(pub.C.Q) >= 0 ||
 		s.Cmp(zero) <= 0 ||
@@ -105,4 +107,12 @@ func (pub *PublicKey) VerifyDigest(digest, signature []byte) (bool, error) {
 	}
 	lm.Mod(lm, pub.C.Q)
 	return lm.Cmp(r) == 0, nil
+}
+
+func (our *PublicKey) Equal(theirKey crypto.PublicKey) bool {
+	their, ok := theirKey.(*PublicKey)
+	if !ok {
+		return false
+	}
+	return our.X.Cmp(their.X) == 0 && our.Y.Cmp(their.Y) == 0 && our.C.Equal(their.C)
 }

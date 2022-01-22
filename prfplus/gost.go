@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ import (
 	"crypto/hmac"
 	"hash"
 
-	"go.cypherpunks.ru/gogost/v4/gost34112012256"
-	"go.cypherpunks.ru/gogost/v4/gost34112012512"
+	"go.cypherpunks.ru/gogost/v5/gost34112012256"
+	"go.cypherpunks.ru/gogost/v5/gost34112012512"
 )
 
 type PRFIPsecPRFPlusGOSTR34112012 struct{ h hash.Hash }

@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,11 +19,12 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"crypto/rand"
+	"io"
 	"testing"
 	"testing/quick"
 
-	"github.com/thefish/gogost/v4/gost3412128"
-	"github.com/thefish/gogost/v4/gost341264"
+	"go.cypherpunks.ru/gogost/v5/gost3412128"
+	"go.cypherpunks.ru/gogost/v5/gost341264"
 )
 
 func TestVector(t *testing.T) {
@@ -144,4 +145,56 @@ func TestSymmetric(t *testing.T) {
 		gost341264.NewCipher(key64[:]),
 		nonce[:gost341264.BlockSize],
 	)
+}
+
+func BenchmarkMGM64(b *testing.B) {
+	key := make([]byte, gost341264.KeySize)
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
+		panic(err)
+	}
+	nonce := make([]byte, gost341264.BlockSize)
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		panic(err)
+	}
+	nonce[0] &= 0x7F
+	pt := make([]byte, 1280+3)
+	if _, err := io.ReadFull(rand.Reader, pt); err != nil {
+		panic(err)
+	}
+	c := gost341264.NewCipher(key)
+	aead, err := NewMGM(c, gost341264.BlockSize)
+	if err != nil {
+		panic(err)
+	}
+	ct := make([]byte, len(pt)+aead.Overhead())
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		aead.Seal(ct[:0], nonce, pt, nil)
+	}
+}
+
+func BenchmarkMGM128(b *testing.B) {
+	key := make([]byte, gost3412128.KeySize)
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
+		panic(err)
+	}
+	nonce := make([]byte, gost3412128.BlockSize)
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		panic(err)
+	}
+	nonce[0] &= 0x7F
+	pt := make([]byte, 1280+3)
+	if _, err := io.ReadFull(rand.Reader, pt); err != nil {
+		panic(err)
+	}
+	c := gost3412128.NewCipher(key)
+	aead, err := NewMGM(c, gost3412128.BlockSize)
+	if err != nil {
+		panic(err)
+	}
+	ct := make([]byte, len(pt)+aead.Overhead())
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		aead.Seal(ct[:0], nonce, pt, nil)
+	}
 }

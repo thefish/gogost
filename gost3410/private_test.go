@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ import (
 )
 
 func TestSignerInterface(t *testing.T) {
-	prvRaw := make([]byte, int(Mode2001))
+	prvRaw := make([]byte, 32)
 	rand.Read(prvRaw)
-	prv, err := NewPrivateKey(CurveIdGostR34102001TestParamSet(), Mode2001, prvRaw)
+	prv, err := NewPrivateKey(CurveIdGostR34102001TestParamSet(), prvRaw)
 	if err != nil {
 		t.FailNow()
 	}

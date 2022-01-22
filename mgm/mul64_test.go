@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2020 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,29 +15,21 @@
 
 package mgm
 
-func (mgm *MGM) mul(xBuf, yBuf []byte) []byte {
-	mgm.x.SetBytes(xBuf)
-	mgm.y.SetBytes(yBuf)
-	mgm.z.SetInt64(0)
-	var i int
-	for mgm.y.BitLen() != 0 {
-		if mgm.y.Bit(0) == 1 {
-			mgm.z.Xor(mgm.z, mgm.x)
-		}
-		if mgm.x.Bit(mgm.maxBit) == 1 {
-			mgm.x.SetBit(mgm.x, mgm.maxBit, 0)
-			mgm.x.Lsh(mgm.x, 1)
-			mgm.x.Xor(mgm.x, mgm.r)
-		} else {
-			mgm.x.Lsh(mgm.x, 1)
-		}
-		mgm.y.Rsh(mgm.y, 1)
+import (
+	"crypto/rand"
+	"testing"
+
+	"go.cypherpunks.ru/gogost/v5/gost341264"
+)
+
+func BenchmarkMul64(b *testing.B) {
+	x := make([]byte, gost341264.BlockSize)
+	y := make([]byte, gost341264.BlockSize)
+	rand.Read(x)
+	rand.Read(y)
+	mul := newMul64()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		mul.Mul(x, y)
 	}
-	zBytes := mgm.z.Bytes()
-	rem := len(xBuf) - len(zBytes)
-	for i = 0; i < rem; i++ {
-		mgm.mulBuf[i] = 0
-	}
-	copy(mgm.mulBuf[rem:], zBytes)
-	return mgm.mulBuf
 }
