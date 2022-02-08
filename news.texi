@@ -111,7 +111,7 @@ CurveIdtc26gost34102012512paramSetC -> CurveIdtc26gost341012512paramSetC
     @item Forbid any later GNU GPL version autousage
         (project's licence now is GNU GPLv3 only)
     @item Project now is @command{go get}-able and uses
-        @code{go.cypherpunks.ru} namespace:
+        @code{github.com/thefish} namespace:
         @command{go get github.com/thefish/gogost},
         @command{go get github.com/thefish/gogost/cmd/streebog@{256,512@}}.
     @end itemize

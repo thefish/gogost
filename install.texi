@@ -27,8 +27,8 @@ And then you can include its source code in your project for example
 like this:
 
 @example
-$ mkdir -p myproj/vendor/go.cypherpunks.ru/gogost
-$ mv gogost-@value{VERSION} myproj/vendor/go.cypherpunks.ru/gogost/v5
+$ mkdir -p myproj/vendor/github.com/thefish/gogost
+$ mv gogost-@value{VERSION} myproj/vendor/github.com/thefish/gogost/v5
 $ cd myproj
 $ cat > main.go <<EOF
 package main
@@ -37,7 +37,7 @@ import (
     "encoding/hex"
     "fmt"
 
-    "go.cypherpunks.ru/gogost/v5/gost34112012256"
+    "github.com/thefish/gogost/v5/gost34112012256"
 )
 
 func main() @{
@@ -84,20 +84,20 @@ GoGOST is also @command{go get}-able. For example to use
 @command{streebog256} utility:
 
 @example
-$ go get go.cypherpunks.ru/gogost/cmd/streebog256
+$ go get github.com/thefish/gogost/cmd/streebog256
 @end example
 
 If you have problems with @code{*.golang.org}'s inability to verify
-authenticity of @code{go.cypherpunks.ru} TLS connection, then you can
-disable their usage by setting @env{GOPRIVATE=go.cypherpunks.ru}. You
+authenticity of @code{github.com/thefish} TLS connection, then you can
+disable their usage by setting @env{GOPRIVATE=github.com/thefish}. You
 can override CA certificate file path with @env{SSL_CERT_FILE} and
 @env{GIT_SSL_CAINFO} environment variables.
 
 Also you can use @code{replace} feature inside your @file{go.mod}, like:
 
 @example
-require go.cypherpunks.ru/gogost/v5 v@value{VERSION}
-replace go.cypherpunks.ru/gogost/v5 => /path/to/gogost-@value{VERSION}
+require github.com/thefish/gogost/v5 v@value{VERSION}
+replace github.com/thefish/gogost/v5 => /path/to/gogost-@value{VERSION}
 @end example
 
 You can obtain development source code with
