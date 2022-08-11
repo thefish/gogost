@@ -1,4 +1,4 @@
-module github.com/thefish/gogost/v5
+module github.com/thefish/gogost
 
 go 1.12
 
