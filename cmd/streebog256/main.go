@@ -20,11 +20,11 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"github.com/thefish/gogost/v4"
 	"io"
 	"os"
 
-	"go.cypherpunks.ru/gogost/v4"
-	"go.cypherpunks.ru/gogost/v4/gost34112012256"
+	"github.com/thefish/gogost/v4/gost34112012256"
 )
 
 var (
