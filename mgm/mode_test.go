@@ -23,8 +23,8 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/thefish/gogost/v5/gost3412128"
-	"github.com/thefish/gogost/v5/gost341264"
+	"github.com/thefish/gogost/gost3412128"
+	"github.com/thefish/gogost/gost341264"
 )
 
 func TestVector(t *testing.T) {
