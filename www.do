@@ -1,17 +1,24 @@
-redo-ifchange *.texi VERSION
+redo-ifchange *.texi
 html=gogost.html
 rm -f $html/*.html
 ${MAKEINFO:-makeinfo} --html \
-    -D "VERSION `cat VERSION`" \
-    --css-include style.css \
+    -D "VERSION `./version`" \
+    --set-customization-variable NO_CSS=1 \
     --set-customization-variable SECTION_NAME_IN_TITLE=1 \
     --set-customization-variable TREE_TRANSFORMATIONS=complete_tree_nodes_menus \
     --set-customization-variable FORMAT_MENU=menu \
     --set-customization-variable EXTRA_HEAD='<link rev="made" href="mailto:webmaster@cypherpunks.ru">' \
-    --set-customization-variable SHOW_TITLE=0 \
     --set-customization-variable DATE_IN_HEADER=1 \
-    --set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
-    --set-customization-variable OPEN_QUOTE_SYMBOL=\" \
-    -o $html www.texi
+    --set-customization-variable ASCII_PUNCTUATION=1 \
+    --output $html www.texi
+(
+    cd $html
+    export ATOM_ID="34c4c603-9fa7-4441-a089-881d216d8638"
+    export NAME=GoGOST
+    export BASE_URL=http://www.gogost.cypherpunks.ru
+    export AUTHOR_EMAIL=gogost@cypherpunks.ru
+    ~/work/releases-feed/releases.atom.zsh
+)
+perl -i -npe 'print "<link rel=\"alternate\" title=\"Releases\" href=\"releases.atom\" type=\"application/atom+xml\">\n" if /^<\/head>/' $html/Download.html
 find $html -type d -exec chmod 755 {} +
 find $html -type f -exec chmod 644 {} +

@@ -13,29 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package gost28147
+// DANE's SPKI hash calculator
+package main
 
 import (
-	"bytes"
-	"crypto/cipher"
-	"testing"
-	"testing/quick"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/hex"
+	"encoding/pem"
+	"flag"
+	"fmt"
+	"io"
+	"log"
+	"os"
 )
 
-func TestCBCCrypter(t *testing.T) {
-	f := func(key [KeySize]byte, iv [BlockSize]byte, pt []byte) bool {
-		c := NewCipher(key[:], SboxDefault)
-		for i := 0; i < BlockSize; i++ {
-			pt = append(pt, pt...)
-		}
-		ct := make([]byte, len(pt))
-		e := cipher.NewCBCEncrypter(c, iv[:])
-		e.CryptBlocks(ct, pt)
-		d := cipher.NewCBCDecrypter(c, iv[:])
-		d.CryptBlocks(ct, ct)
-		return bytes.Equal(pt, ct)
+func main() {
+	flag.Parse()
+	data, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	if err := quick.Check(f, nil); err != nil {
-		t.Error(err)
+	b, _ := pem.Decode(data)
+	if b == nil || b.Type != "CERTIFICATE" {
+		log.Fatalln("no CERTIFICATE")
 	}
+	cer, err := x509.ParseCertificate(b.Bytes)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	h := sha256.Sum256(cer.RawSubjectPublicKeyInfo)
+	fmt.Println(hex.EncodeToString(h[:]))
 }

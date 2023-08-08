@@ -1,18 +1,17 @@
 #!/bin/sh -ex
 
+PATH=$HOME/work/meta4ra/contrib:$PATH
 cur=$(pwd)
 tmp=$(mktemp -d)
 release=$1
 [ -n "$release" ]
 
-redo-ifchange streebog256
+[ -x streebog256 ] || go build -o streebog256 ./cmd/streebog256
 git clone . $tmp/gogost-$release
 cd $tmp/gogost-$release
 git checkout v$release
-redo VERSION
+./version > VERSION
 go mod vendor
-mkdir contrib
-cp ~/work/redo/minimal/do contrib/do
 
 cat > download.texi <<EOF
 You can obtain releases source code prepared tarballs on
@@ -21,8 +20,7 @@ EOF
 
 mkinfo() {
     ${MAKEINFO:-makeinfo} --plaintext \
-        --set-customization-variable CLOSE_QUOTE_SYMBOL=\" \
-        --set-customization-variable OPEN_QUOTE_SYMBOL=\" \
+        --set-customization-variable ASCII_PUNCTUATION=1 \
         -D "VERSION `cat VERSION`" $@
 }
 
@@ -56,48 +54,32 @@ mkinfo --output FAQ $texi
 
 rm -rf .git
 redo-cleanup full
-rm -f \
-    $texi \
-    *.texi \
-    .gitignore \
-    clean.do \
-    makedist.sh \
-    style.css \
-    TODO \
-    VERSION.do \
-    www.do
+rm -f $texi *.texi makedist version www.do
 
-perl -i -npe "s/build/build -mod=vendor/" default.do
-perl -i -npe "s/test/test -mod=vendor/" bench.do
+perl -i -npe "s/test/test -mod=vendor/" bench
 
 find . -type d -exec chmod 755 {} +
 find . -type f -exec chmod 644 {} +
-chmod +x contrib/do
+chmod +x bench
 
 cd ..
 tar cvf gogost-"$release".tar --uid=0 --gid=0 --numeric-owner gogost-"$release"
 zstd -19 -v gogost-"$release".tar
 tarball=gogost-"$release".tar.zst
-gpg --detach-sign --sign --local-user 82343436696FC85A $tarball
-gpg --enarmor < "$tarball".sig |
-    sed "/^Comment:/d ; s/ARMORED FILE/SIGNATURE/" > "$tarball".asc
-meta4-create -file "$tarball" -mtime "$tarball" -sig "$tarball".asc \
-    http://www.gogost.cypherpunks.ru/"$tarball" > "$tarball".meta4
+gpg --armor --detach-sign --sign --local-user 82343436696FC85A $tarball
+meta4-create -fn "$tarball" -mtime "$tarball" -sig "$tarball".asc \
+    http://www.gogost.cypherpunks.ru/"$tarball" \
+    http://y.www.gogost.cypherpunks.ru/"$tarball" < "$tarball" > "$tarball".meta4
 
 size=$(( $(stat -f %z $tarball) / 1024 ))
-hash=$(gpg --print-md SHA256 < $tarball)
-hashsb=$($HOME/work/gogost/streebog256 < $tarball)
 release_date=$(date "+%Y-%m-%d")
 
 cat <<EOF
 An entry for documentation:
-@item @ref{Release $release, $release} @tab $release_date @tab $size KiB
-@tab
-    @url{$tarball.meta4, meta4}
-    @url{$tarball, link}
-    @url{$tarball.sig, sig}
-@tab @code{$hash}
-@tab @code{$hashsb}
+@item @ref{Release $release, $release} @tab $release_date @tab $size KiB @tab
+@url{$tarball.meta4, meta4}
+@url{$tarball, tar}
+@url{$tarball.asc, sig}
 EOF
 
 cat <<EOF
@@ -120,10 +102,8 @@ GoGOST'es home page is: http://www.gogost.cypherpunks.ru/
 Source code and its signature for that version can be found here:
 
     http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst ($size KiB)
-    http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst.sig
+    http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst.asc
 
-Streebog-256 hash: $hashsb
-SHA256 hash: $hash
 GPG key: CEBD 1282 2C46 9C02 A81A  0467 8234 3436 696F C85A
          GoGOST releases <gogost at cypherpunks dot ru>
 
@@ -152,10 +132,8 @@ GoGOST это свободное программное обеспечение �
 Исходный код и его подпись для этой версии могут быть найдены здесь:
 
     http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst ($size KiB)
-    http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst.sig
+    http://www.gogost.cypherpunks.ru/gogost-${release}.tar.zst.asc
 
-Streebog-256 хэш: $hashsb
-SHA256 хэш: $hash
 GPG ключ: CEBD 1282 2C46 9C02 A81A  0467 8234 3436 696F C85A
           GoGOST releases <gogost at cypherpunks dot ru>
 
@@ -164,5 +142,5 @@ GPG ключ: CEBD 1282 2C46 9C02 A81A  0467 8234 3436 696F C85A
 http://lists.cypherpunks.ru/gost.html
 EOF
 
-mv $tmp/$tarball $tmp/"$tarball".sig $tmp/"$tarball".meta4 $cur/gogost.html/
+mv $tmp/$tarball $tmp/"$tarball".asc $tmp/"$tarball".meta4 $cur/gogost.html/
 rm -fr $tmp

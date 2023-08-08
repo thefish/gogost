@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2022 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2023 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -63,17 +63,7 @@ func NewCurve(p, q, a, b, x, y, e, d, co *big.Int) (*Curve, error) {
 		X:    x,
 		Y:    y,
 	}
-	r1 := big.NewInt(0)
-	r2 := big.NewInt(0)
-	r1.Mul(c.Y, c.Y)
-	r1.Mod(r1, c.P)
-	r2.Mul(c.X, c.X)
-	r2.Add(r2, c.A)
-	r2.Mul(r2, c.X)
-	r2.Add(r2, c.B)
-	r2.Mod(r2, c.P)
-	c.pos(r2)
-	if r1.Cmp(r2) != 0 {
+	if !c.Contains(c.X, c.Y) {
 		return nil, errors.New("gogost/gost3410: invalid curve parameters")
 	}
 	if e != nil && d != nil {
@@ -88,8 +78,25 @@ func NewCurve(p, q, a, b, x, y, e, d, co *big.Int) (*Curve, error) {
 	return &c, nil
 }
 
+// Is point on curve?
+func (c *Curve) Contains(x, y *big.Int) bool {
+	r1 := big.NewInt(0)
+	r2 := big.NewInt(0)
+	r1.Mul(y, y)
+	r1.Mod(r1, c.P)
+	r2.Mul(x, x)
+	r2.Add(r2, c.A)
+	r2.Mul(r2, x)
+	r2.Add(r2, c.B)
+	r2.Mod(r2, c.P)
+	c.pos(r2)
+	return r1.Cmp(r2) == 0
+}
+
+// Get the size of the point's coordinate in bytes.
+// 32 for 256-bit curves, 64 for 512-bit ones.
 func (c *Curve) PointSize() int {
-	return PointSize(c.P)
+	return pointSize(c.P)
 }
 
 func (c *Curve) pos(v *big.Int) {
@@ -163,4 +170,8 @@ func (our *Curve) Equal(their *Curve) bool {
 		((our.E == nil && their.E == nil) || our.E.Cmp(their.E) == 0) &&
 		((our.D == nil && their.D == nil) || our.D.Cmp(their.D) == 0) &&
 		our.Co.Cmp(their.Co) == 0
+}
+
+func (c *Curve) String() string {
+	return c.Name
 }

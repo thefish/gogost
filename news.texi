@@ -3,6 +3,42 @@
 
 @table @strong
 
+@anchor{Release 5.13.0}
+@item 5.13.0
+    @itemize
+    @item
+        @code{gost3410.NewPublicKeyLE}, @code{gost3410.PublicKey.RawLE},
+        @code{gost3410.NewPublicKeyBE}, @code{gost3410.PublicKey.RawBE},
+        @code{gost3410.NewPrivateKeyLE}, @code{gost3410.PrivateKey.RawLE},
+        @code{gost3410.NewPrivateKeyBE}, @code{gost3410.PrivateKey.RawBE},
+        functions appeared, to simplify dealing with different endianness
+        keys serialisation
+    @item
+        @code{gost3410.PublicKeyReverseDigest} and
+        @code{gost3410.PublicKeyReverseDigestAndSignature} wrappers appeared
+    @end itemize
+
+@anchor{Release 5.12.0}
+@item 5.12.0
+Updated dependencies.
+
+@anchor{Release 5.11.0}
+@item 5.11.0
+You can check if public key is on curve with
+@code{gost3410.Curve.Contains} method now.
+
+@anchor{Release 5.10.0}
+@item 5.10.0
+    @itemize
+    @item @code{mgm.MGM.Open} returns @code{mgm.InvalidTag} for failed authentication
+    @item Example @file{cmd/cer-dane-hash} and
+        @file{cmd/cer-selfsigned-example} utilities appeared
+    @end itemize
+
+@anchor{Release 5.9.1}
+@item 5.9.1
+Updated and cleaned up @file{go.sum}.
+
 @anchor{Release 5.9.0}
 @item 5.9.0
 @code{gost3410} is more thread-safe.
