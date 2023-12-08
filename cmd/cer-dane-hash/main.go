@@ -32,15 +32,15 @@ func main() {
 	flag.Parse()
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	b, _ := pem.Decode(data)
 	if b == nil || b.Type != "CERTIFICATE" {
-		log.Fatalln("no CERTIFICATE")
+		log.Fatal("no CERTIFICATE")
 	}
 	cer, err := x509.ParseCertificate(b.Bytes)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	h := sha256.Sum256(cer.RawSubjectPublicKeyInfo)
 	fmt.Println(hex.EncodeToString(h[:]))
