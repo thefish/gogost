@@ -1,6 +1,12 @@
 @multitable {XXXXX} {XXXX-XX-XX} {XXXX KiB} {meta4 tar pgp ssh}
 @headitem Version @tab Date @tab Size @tab Tarball
 
+@item @ref{Release 5.14.0, 5.14.0} @tab 2023-12-08 @tab 66 KiB @tab
+@url{gogost-5.14.0.tar.zst.meta4, meta4}
+@url{gogost-5.14.0.tar.zst, tar}
+@url{gogost-5.14.0.tar.zst.asc, pgp}
+@url{gogost-5.14.0.tar.zst.sig, ssh}
+
 @item @ref{Release 5.13.0, 5.13.0} @tab 2023-08-07 @tab 65 KiB @tab
 @url{gogost-5.13.0.tar.zst.meta4, meta4}
 @url{gogost-5.13.0.tar.zst, tar}
