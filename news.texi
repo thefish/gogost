@@ -3,6 +3,11 @@
 
 @table @strong
 
+@anchor{Release 5.14.0}
+@item 5.14.0
+28147-89 and CryptoPro key wrapping support
+(@url{https://tools.ietf.org/html/rfc4357.html, RFC 4357}).
+
 @anchor{Release 5.13.0}
 @item 5.13.0
     @itemize

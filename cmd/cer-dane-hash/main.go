@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2023 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2024 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,15 +32,15 @@ func main() {
 	flag.Parse()
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	b, _ := pem.Decode(data)
 	if b == nil || b.Type != "CERTIFICATE" {
-		log.Fatalln("no CERTIFICATE")
+		log.Fatal("no CERTIFICATE")
 	}
 	cer, err := x509.ParseCertificate(b.Bytes)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	h := sha256.Sum256(cer.RawSubjectPublicKeyInfo)
 	fmt.Println(hex.EncodeToString(h[:]))

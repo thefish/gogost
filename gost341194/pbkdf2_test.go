@@ -1,5 +1,5 @@
 // GoGOST -- Pure Go GOST cryptographic functions library
-// Copyright (C) 2015-2023 Sergey Matveev <stargrave@stargrave.org>
+// Copyright (C) 2015-2024 Sergey Matveev <stargrave@stargrave.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -82,24 +82,22 @@ func TestPBKDF2Vectors(t *testing.T) {
 		}
 	})
 
-	/*
-		t.Run("16777216", func(t *testing.T) {
-			if !bytes.Equal(pbkdf2.Key(
-				[]byte("password"),
-				[]byte("salt"),
-				16777216,
-				32,
-				PBKDF2Hash,
-			), []byte{
-				0xa5, 0x7a, 0xe5, 0xa6, 0x08, 0x83, 0x96, 0xd1,
-				0x20, 0x85, 0x0c, 0x5c, 0x09, 0xde, 0x0a, 0x52,
-				0x51, 0x00, 0x93, 0x8a, 0x59, 0xb1, 0xb5, 0xc3,
-				0xf7, 0x81, 0x09, 0x10, 0xd0, 0x5f, 0xcd, 0x97,
-			}) {
-				t.FailNow()
-			}
-		})
-	*/
+	// t.Run("16777216", func(t *testing.T) {
+	// 	if !bytes.Equal(pbkdf2.Key(
+	// 		[]byte("password"),
+	// 		[]byte("salt"),
+	// 		16777216,
+	// 		32,
+	// 		PBKDF2Hash,
+	// 	), []byte{
+	// 		0xa5, 0x7a, 0xe5, 0xa6, 0x08, 0x83, 0x96, 0xd1,
+	// 		0x20, 0x85, 0x0c, 0x5c, 0x09, 0xde, 0x0a, 0x52,
+	// 		0x51, 0x00, 0x93, 0x8a, 0x59, 0xb1, 0xb5, 0xc3,
+	// 		0xf7, 0x81, 0x09, 0x10, 0xd0, 0x5f, 0xcd, 0x97,
+	// 	}) {
+	// 		t.FailNow()
+	// 	}
+	// })
 
 	t.Run("many", func(t *testing.T) {
 		if !bytes.Equal(pbkdf2.Key(
